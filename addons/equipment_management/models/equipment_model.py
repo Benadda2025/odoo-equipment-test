@@ -1,61 +1,206 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
-from odoo.exceptions import UserError
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 
-class Equipment(models.Model):
+class EquipmentEquipment(models.Model):
     _name = "equipment.equipment"
     _description = "Equipment"
-    _order = "name"
+    _order = "name, id"
 
-    name = fields.Char(required=True, index=True)
-    code = fields.Char(string="Reference", required=True, copy=False, index=True)
-    serial_number = fields.Char(index=True, copy=False)
-    category_id = fields.Many2one("equipment.category", required=True, index=True)
-    purchase_date = fields.Date()
+    name = fields.Char(
+        string="Name",
+        required=True,
+        index=True,
+    )
+
+    code = fields.Char(
+        string="Code",
+        required=True,
+        copy=False,
+        index=True,
+    )
+
+    category_id = fields.Many2one(
+        "equipment.category",
+        string="Category",
+        required=True,
+        index=True,
+        ondelete="restrict",
+    )
+
+    serial_number = fields.Char(
+        string="Serial Number",
+        copy=False,
+        index=True,
+    )
+
+    purchase_date = fields.Date(
+        string="Purchase Date",
+        index=True,
+    )
+
     state = fields.Selection(
-        [("available", "Available"), ("in_use", "In Use"),
-         ("maintenance", "Maintenance"), ("retired", "Retired")],
-        default="available", required=True, index=True,
+        [
+            ("available", "Available"),
+            ("in_use", "In Use"),
+            ("maintenance", "Maintenance"),
+            ("retired", "Retired"),
+        ],
+        string="Status",
+        required=True,
+        default="available",
+        index=True,
     )
-    # Stored copy of the open assignment: "who has what" never scans the history
-    current_assignment_id = fields.Many2one(
-        "equipment.assignment", string="Current Assignment", index=True, copy=False
-    )
+
     current_employee_id = fields.Many2one(
-        "hr.employee", string="Assigned To", index=True, copy=False
+        "hr.employee",
+        string="Current Employee",
+        index=True,
+        copy=False,
+        ondelete="set null",
     )
-    assignment_ids = fields.One2many("equipment.assignment", "equipment_id")
-    assignment_count = fields.Integer(compute="_compute_assignment_count")
-    active = fields.Boolean(default=True)
+
+    assignment_ids = fields.One2many(
+        "equipment.assignment",
+        "equipment_id",
+        string="Assignment History",
+    )
+
+    assignment_count = fields.Integer(
+        string="Assignment Count",
+        compute="_compute_assignment_count",
+    )
+
+    active = fields.Boolean(
+        default=True,
+        index=True,
+    )
+
+    note = fields.Text(
+        string="Notes",
+    )
 
     _sql_constraints = [
-        ("code_uniq", "unique(code)", "The reference must be unique."),
+        (
+            "equipment_code_unique",
+            "unique(code)",
+            "Equipment code must be unique.",
+        ),
+        (
+            "equipment_serial_unique",
+            "unique(serial_number)",
+            "Serial number must be unique.",
+        ),
     ]
 
+    @api.depends("assignment_ids")
     def _compute_assignment_count(self):
-        data = self.env["equipment.assignment"]._read_group(
-            [("equipment_id", "in", self.ids)], ["equipment_id"], ["__count"]
-        )
-        counts = {equipment.id: count for equipment, count in data}
-        for rec in self:
-            rec.assignment_count = counts.get(rec.id, 0)
+        for equipment in self:
+            equipment.assignment_count = len(equipment.assignment_ids)
 
-    def action_view_assignments(self):
+   
+    def action_assign_equipment(self):
+        """Open the assignment form for this equipment."""
         self.ensure_one()
+
+        if self.state != "available":
+            raise UserError(
+                _("%s is not available.") % self.display_name
+            )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Give Equipment",
+            "res_model": "equipment.assignment",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_equipment_id": self.id,
+            },
+        }
+
+    def action_send_to_maintenance(self):
+        """Move equipment to maintenance."""
+        for equipment in self:
+            if equipment.state == "retired":
+                raise UserError(
+                    _("Retired equipment cannot be sent to maintenance.")
+                )
+
+            if equipment.state == "in_use":
+                raise UserError(
+                    _("Return the equipment before sending it to maintenance.")
+                )
+
+            equipment.write({
+                "state": "maintenance",
+                "current_employee_id": False,
+            })
+
+        return True
+
+    def action_back_to_available(self):
+        """Make equipment available again."""
+        for equipment in self:
+            if equipment.state == "retired":
+                raise UserError(
+                    _("Retired equipment cannot be made available.")
+                )
+
+            if equipment.state == "in_use":
+                raise UserError(
+                    _("Return the equipment before making it available.")
+                )
+
+            equipment.write({
+                "state": "available",
+                "current_employee_id": False,
+            })
+
+        return True
+
+    def action_retire(self):
+        """Retire equipment permanently."""
+        for equipment in self:
+            if equipment.state == "in_use":
+                raise UserError(
+                    _("Return the equipment before retiring it.")
+                )
+
+            equipment.write({
+                "state": "retired",
+                "current_employee_id": False,
+            })
+
+        return True
+
+    def action_view_assignment_history(self):
+        """Open the complete assignment history."""
+        self.ensure_one()
+
         return {
             "type": "ir.actions.act_window",
             "name": "Assignment History",
             "res_model": "equipment.assignment",
             "view_mode": "list,form",
-            "domain": [("equipment_id", "=", self.id)],
-            "context": {"default_equipment_id": self.id},
+            "domain": [
+                ("equipment_id", "=", self.id),
+            ],
+            "context": {
+                "default_equipment_id": self.id,
+            },
         }
 
-    def action_set_maintenance(self):
-        if any(r.state == "in_use" for r in self):
-            raise UserError("Return the equipment before sending it to maintenance.")
-        self.write({"state": "maintenance"})
+    def unlink(self):
+        """Prevent deletion when equipment has assignment history."""
+        if self.filtered("assignment_ids"):
+            raise UserError(
+                _(
+                    "Equipment with assignment history cannot be deleted. "
+                    "Archive it instead."
+                )
+            )
 
-    def action_set_available(self):
-        self.filtered(lambda r: r.state == "maintenance").write({"state": "available"})
+        return super().unlink()

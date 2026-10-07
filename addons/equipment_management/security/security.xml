@@ -1,1 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Daily work: give / return equipment -->
+    <record id="group_equipment_user" model="res.groups">
+        <field name="name">Equipment: User</field>
+    </record>
+
+    <!-- Supervision: manage equipment, retire, configuration.
+         Also implies HR Officer, so managers can open employee records
+         (the standard employee form reads fields reserved to that group). -->
+    <record id="group_equipment_manager" model="res.groups">
+        <field name="name">Equipment: Manager</field>
+        <field name="implied_ids" eval="[
+            (4, ref('group_equipment_user')),
+            (4, ref('hr.group_hr_user')),
+        ]"/>
+    </record>
+
+    <!-- Administrators are equipment managers -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_equipment_manager'))]"/>
+    </record>
+</odoo>

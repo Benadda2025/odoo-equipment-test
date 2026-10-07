@@ -1,82 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_equipment_assignment_list" model="ir.ui.view">
+
+    <!-- LIST -->
+    <record id="assignment_view_list" model="ir.ui.view">
         <field name="name">equipment.assignment.list</field>
         <field name="model">equipment.assignment</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'active'" decoration-muted="state == 'returned'">
+            <list
+                decoration-info="is_active"
+                decoration-muted="not is_active"
+                sample="1"
+            >
                 <field name="equipment_id"/>
                 <field name="employee_id"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
-                <field name="state" widget="badge"
-                       decoration-info="state == 'active'"
-                       decoration-muted="state == 'returned'"/>
+                <field name="note" optional="hide"/>
+
+                <field name="is_active" column_invisible="1"/>
+
+                <button
+                    name="action_return"
+                    type="object"
+                    string="Return"
+                    icon="fa-undo"
+                    invisible="not is_active"
+                />
             </list>
         </field>
     </record>
 
-    <record id="view_equipment_assignment_form" model="ir.ui.view">
+
+    <!-- FORM -->
+    <record id="assignment_view_form" model="ir.ui.view">
         <field name="name">equipment.assignment.form</field>
         <field name="model">equipment.assignment</field>
         <field name="arch" type="xml">
+
             <form>
                 <header>
-                    <button name="action_return" type="object" string="Return Equipment"
-                            class="btn-primary" invisible="state == 'returned' or not id"/>
-                    <field name="state" widget="statusbar" statusbar_visible="active,returned"/>
+                    <button
+                        name="action_return"
+                        string="Return Equipment"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not is_active or not id"
+                    />
                 </header>
+
                 <sheet>
+
+                    <field name="is_active" invisible="1"/>
+
+                    <widget
+                        name="web_ribbon"
+                        title="Returned"
+                        bg_color="text-bg-secondary"
+                        invisible="is_active or not id"
+                    />
+
                     <group>
-                        <group>
-                            <field name="equipment_id" readonly="id"
-                                   options="{'no_create': True}"
-                                   domain="[('state', '=', 'available')]"/>
-                            <field name="employee_id" readonly="state == 'returned'"
-                                   options="{'no_create': True}"/>
+
+                        <group string="Assignment">
+                            <field
+                                name="equipment_id"
+                                readonly="id"
+                                domain="[('state', '=', 'available')]"
+                                options="{
+                                    'no_create': True,
+                                    'no_open': True
+                                }"
+                            />
+
+                            <field
+                                name="employee_id"
+                                readonly="id"
+                                options="{'no_create': True}"
+                            />
                         </group>
-                        <group>
-                            <field name="date_from" readonly="id"/>
-                            <field name="date_to" readonly="1"/>
+
+                        <group string="Dates">
+                            <field
+                                name="date_from"
+                                readonly="id"
+                            />
+
+                            <field
+                                name="date_to"
+                                invisible="not id"
+                            />
                         </group>
+
                     </group>
-                    <field name="note" placeholder="Condition at handover or return..."/>
+
+                    <notebook>
+                        <page string="Notes" name="notes">
+                            <field
+                                name="note"
+                                placeholder="Condition, accessories given..."
+                            />
+                        </page>
+                    </notebook>
+
                 </sheet>
             </form>
+
         </field>
     </record>
 
-    <record id="view_equipment_assignment_search" model="ir.ui.view">
+
+    <!-- SEARCH -->
+    <record id="assignment_view_search" model="ir.ui.view">
         <field name="name">equipment.assignment.search</field>
         <field name="model">equipment.assignment</field>
         <field name="arch" type="xml">
+
             <search>
-                <field name="equipment_id"/>
+
+                <field
+                    name="equipment_id"
+                    filter_domain="[
+                        '|',
+                        ('equipment_id.name', 'ilike', self),
+                        ('equipment_id.code', 'ilike', self)
+                    ]"
+                />
+
                 <field name="employee_id"/>
+
                 <separator/>
-                <filter name="filter_active" string="Active" domain="[('state', '=', 'active')]"/>
-                <filter name="filter_returned" string="Returned" domain="[('state', '=', 'returned')]"/>
+
+                <filter
+                    name="active_now"
+                    string="In Progress"
+                    domain="[('is_active', '=', True)]"
+                />
+
+                <filter
+                    name="returned"
+                    string="Returned"
+                    domain="[('is_active', '=', False)]"
+                />
+
                 <separator/>
-                <filter name="filter_this_month" string="Given This Month"
-                        domain="[('date_from', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+
+                <filter
+                    name="date_from_filter"
+                    string="Given Date"
+                    date="date_from"
+                />
+
                 <group expand="0" string="Group By">
-                    <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
-                    <filter name="group_equipment" string="Equipment" context="{'group_by': 'equipment_id'}"/>
-                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_month" string="Given On" context="{'group_by': 'date_from:month'}"/>
+
+                    <filter
+                        name="group_employee"
+                        string="Employee"
+                        context="{'group_by': 'employee_id'}"
+                    />
+
+                    <filter
+                        name="group_equipment"
+                        string="Equipment"
+                        context="{'group_by': 'equipment_id'}"
+                    />
+
+                    <filter
+                        name="group_month"
+                        string="Given Month"
+                        context="{'group_by': 'date_from:month'}"
+                    />
+
                 </group>
+
             </search>
+
         </field>
     </record>
 
-    <record id="action_equipment_assignment" model="ir.actions.act_window">
-        <field name="name">Assignments</field>
-        <field name="res_model">equipment.assignment</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_equipment_assignment_search"/>
-        <field name="context">{'search_default_filter_active': 1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Assign your first equipment to an employee</p>
-        </field>
-    </record>
+
+   <!-- CURRENT ASSIGNMENTS -->
+<record id="assignment_action_current" model="ir.actions.act_window">
+    <field name="name">Current Assignments</field>
+    <field name="res_model">equipment.assignment</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_active_now': 1}</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+            No equipment is currently assigned
+        </p>
+        <p>
+            Click New to give equipment to an employee.
+        </p>
+    </field>
+</record>
+
+<!-- ASSIGNMENT HISTORY -->
+<record id="assignment_action_history" model="ir.actions.act_window">
+    <field name="name">Assignment History</field>
+    <field name="res_model">equipment.assignment</field>
+    <field name="view_mode">list,form</field>
+</record>
+
 </odoo>

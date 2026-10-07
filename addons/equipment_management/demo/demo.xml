@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Categories -->
+    <record id="demo_cat_laptop" model="equipment.category"><field name="name">Laptop</field></record>
+    <record id="demo_cat_phone" model="equipment.category"><field name="name">Phone</field></record>
+    <record id="demo_cat_accessory" model="equipment.category"><field name="name">Accessory</field></record>
+
+    <!-- Employees -->
+    <record id="demo_emp_fatima" model="hr.employee"><field name="name">fatima fatima</field></record>
+    <record id="demo_emp_zohra" model="hr.employee"><field name="name">zohra zohra</field></record>
+
+    <!-- Equipment -->
+    <record id="demo_eq_laptop1" model="equipment.equipment">
+        <field name="name">Dell Latitude 5440</field><field name="code">EQ-DEMO-001</field>
+        <field name="serial_number">DL5440-A1</field><field name="category_id" ref="demo_cat_laptop"/>
+    </record>
+    <record id="demo_eq_laptop2" model="equipment.equipment">
+        <field name="name">MacBook Pro 14</field><field name="code">EQ-DEMO-002</field>
+        <field name="serial_number">MBP14-B2</field><field name="category_id" ref="demo_cat_laptop"/>
+    </record>
+    <record id="demo_eq_phone1" model="equipment.equipment">
+        <field name="name">iPhone 15</field><field name="code">EQ-DEMO-003</field>
+        <field name="serial_number">IP15-C3</field><field name="category_id" ref="demo_cat_phone"/>
+    </record>
+    <record id="demo_eq_phone2" model="equipment.equipment">
+        <field name="name">Samsung Galaxy S23</field><field name="code">EQ-DEMO-004</field>
+        <field name="serial_number">SGS23-D4</field><field name="category_id" ref="demo_cat_phone"/>
+    </record>
+    <record id="demo_eq_screen" model="equipment.equipment">
+        <field name="name">Dell 27" Monitor</field><field name="code">EQ-DEMO-005</field>
+        <field name="category_id" ref="demo_cat_accessory"/>
+        <field name="state">maintenance</field>
+    </record>
+
+    <!-- Assignments: one open, one returned (history) -->
+    <record id="demo_assign_open" model="equipment.assignment">
+        <field name="equipment_id" ref="demo_eq_laptop1"/>
+        <field name="employee_id" ref="demo_emp_fatima"/>
+        <field name="date_from" eval="(DateTime.today() - relativedelta(days=40)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="note">Charger and bag included.</field>
+    </record>
+    <record id="demo_assign_returned" model="equipment.assignment">
+        <field name="equipment_id" ref="demo_eq_phone1"/>
+        <field name="employee_id" ref="demo_emp_zohra"/>
+        <field name="date_from" eval="(DateTime.today() - relativedelta(days=200)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="date_to" eval="(DateTime.today() - relativedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+    <!--users-->
+
+<record id="demo_user_equipment" model="res.users">
+    <field name="name">Equipment User</field>
+    <field name="login">user</field>
+    <field name="password">odoo</field>
+
+    <field name="groups_id" eval="[
+        (4, ref('base.group_user')),
+        (4, ref('equipment_management.group_equipment_user'))
+    ]"/>
+</record>
+
+<record id="demo_user_manager" model="res.users">
+    <field name="name">Equipment Manager</field>
+    <field name="login">manager</field>
+    <field name="password">odoo</field>
+
+    <field name="groups_id" eval="[
+        (4, ref('base.group_user')),
+        (4, ref('equipment_management.group_equipment_manager'))
+    ]"/>
+</record>
+</odoo>

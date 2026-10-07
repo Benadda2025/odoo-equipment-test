@@ -1,36 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <menuitem id="menu_equipment_root"
-              name="Equipment"
+    <menuitem id="menu_equipment_root" name="Equipment"
               web_icon="equipment_management,static/description/icon.png"
-              groups="base.group_system"
-              sequence="50"/>
+              groups="group_equipment_user" sequence="50"/>
+    
+    <menuitem id="menu_employees_equipment" name="Employees"
+              parent="menu_equipment_root" groups="group_equipment_manager"
+              action="hr.open_view_employee_list_my" sequence="5"/>
 
-    <menuitem id="menu_equipment_equipment"
-              name="Equipment"
-              parent="menu_equipment_root"
-              action="action_equipment_equipment"
-              sequence="10"/>
-              
-    <menuitem id="menu_equipment_employee"
-              name="Employees"
-              parent="menu_equipment_root"
-              action="hr.open_view_employee_list_my"
-              sequence="30"/>
-    <menuitem id="menu_equipment_assignment"
-              name="Assignments"
-              parent="menu_equipment_root"
-              action="action_equipment_assignment"
-              sequence="40"/>
+    <!-- Daily work -->
+    <menuitem id="menu_operations" name="Operations"
+              parent="menu_equipment_root" sequence="10"/>
+    <menuitem id="menu_assignment_current" name="Current Assignments"
+              parent="menu_operations" action="assignment_action_current" sequence="10"/>
+    <menuitem id="menu_assignment_history" name="Assignment History"
+              parent="menu_operations" action="assignment_action_history" sequence="20"/>
 
-    <menuitem id="menu_equipment_configuration"
-              name="Configuration"
-              parent="menu_equipment_root"
-              sequence="90"/>
+    <!-- Inventory -->
+    <menuitem id="menu_equipment_parent" name="Inventory"
+              parent="menu_equipment_root" sequence="20"/>
+    <menuitem id="menu_equipment_all" name="All Equipment"
+              parent="menu_equipment_parent" action="equipment_action" sequence="10"/>
+    <menuitem id="menu_equipment_available" name="Available"
+              parent="menu_equipment_parent" action="equipment_action_available" sequence="20"/>
+    <menuitem id="menu_equipment_in_use" name="In Use"
+              parent="menu_equipment_parent" action="equipment_action_in_use" sequence="30"/>
+    <menuitem id="menu_equipment_maintenance" name="Maintenance"
+              parent="menu_equipment_parent" action="equipment_action_maintenance" sequence="40"/>
 
-    <menuitem id="menu_equipment_category"
-              name="Categories"
-              parent="menu_equipment_configuration"
-              action="action_equipment_category"
-              sequence="10"/>
+    <!-- Managers only -->
+    <menuitem id="menu_equipment_config" name="Configuration"
+              parent="menu_equipment_root" groups="group_equipment_manager" sequence="90"/>
+    <menuitem id="menu_category" name="Categories"
+              parent="menu_equipment_config" action="action_equipment_category" sequence="10"/>
 </odoo>

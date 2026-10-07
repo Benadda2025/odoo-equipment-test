@@ -1,16 +1,107 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_employee_form_equipment" model="ir.ui.view">
+
+    <!-- Employee form: equipment buttons and tab -->
+    <record id="hr_employee_view_form_equipment" model="ir.ui.view">
         <field name="name">hr.employee.form.equipment</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
+
         <field name="arch" type="xml">
+
             <div name="button_box" position="inside">
-                <button name="action_view_equipment" type="object"
-                        class="oe_stat_button" icon="fa-laptop">
-                    <field name="equipment_count" widget="statinfo" string="Equipment"/>
+
+                <button
+                    name="action_view_equipment"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-laptop"
+                    groups="equipment_management.group_equipment_user"
+                >
+                    <field
+                        name="equipment_count"
+                        widget="statinfo"
+                        string="Equipment"
+                    />
                 </button>
+
+                <button
+                    name="action_view_equipment_history"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-history"
+                    string="History"
+                    groups="equipment_management.group_equipment_user"
+                />
+
+                <button
+                    name="action_assign_equipment"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-plus"
+                    string="Give Equipment"
+                    groups="equipment_management.group_equipment_user"
+                />
+
             </div>
+
+            <notebook position="inside">
+
+                <page
+                    string="Equipment"
+                    name="equipment"
+                    groups="equipment_management.group_equipment_user"
+                >
+
+                    <field name="equipment_ids" readonly="1">
+
+                        <list>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="category_id"/>
+                            <field
+                                name="state"
+                                widget="badge"
+                                decoration-info="state == 'in_use'"
+                            />
+                        </list>
+
+                    </field>
+
+                </page>
+
+            </notebook>
+
         </field>
     </record>
+
+
+   <!-- Employee search filters -->
+<record id="hr_employee_view_search_equipment" model="ir.ui.view">
+    <field name="name">hr.employee.search.equipment</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_filter"/>
+
+    <field name="arch" type="xml">
+        <search position="inside">
+
+            <separator/>
+
+            <filter
+                name="with_equipment"
+                string="With Equipment"
+                domain="[('equipment_ids', '!=', False)]"
+                groups="equipment_management.group_equipment_user"
+            />
+
+            <filter
+                name="without_equipment"
+                string="Without Equipment"
+                domain="[('equipment_ids', '=', False)]"
+                groups="equipment_management.group_equipment_user"
+            />
+
+        </search>
+    </field>
+</record>
+
 </odoo>

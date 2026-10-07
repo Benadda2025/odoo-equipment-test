@@ -1,47 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_equipment_equipment_list" model="ir.ui.view">
+    <!-- LIST -->
+    <record id="equipment_view_list" model="ir.ui.view">
         <field name="name">equipment.equipment.list</field>
         <field name="model">equipment.equipment</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="code"/>
+            <list decoration-muted="state == 'retired'" sample="1">
+                <field name="code" decoration-bf="1"/>
                 <field name="name"/>
                 <field name="category_id"/>
-                <field name="serial_number" optional="show"/>
-                <field name="current_employee_id" optional="show"/>
+                <field name="current_employee_id" string="Assigned To"/>
+                <field name="serial_number" optional="hide"/>
                 <field name="purchase_date" optional="hide"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'available'"
                        decoration-info="state == 'in_use'"
                        decoration-warning="state == 'maintenance'"
-                       decoration-muted="state == 'retired'"/>
+                       decoration-danger="state == 'retired'"/>
             </list>
         </field>
     </record>
 
-    <record id="view_equipment_equipment_form" model="ir.ui.view">
+    <!-- FORM -->
+    <record id="equipment_view_form" model="ir.ui.view">
         <field name="name">equipment.equipment.form</field>
         <field name="model">equipment.equipment</field>
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_set_maintenance" type="object" string="Send to Maintenance"
-                            invisible="state != 'available'"/>
-                    <button name="action_set_available" type="object" string="Back to Available"
-                            invisible="state != 'maintenance'"/>
+                    <button name="action_assign_equipment" string="Give Equipment" type="object"
+                            class="btn-primary" invisible="state != 'available'"/>
+                    <button name="action_send_to_maintenance" string="Send to Maintenance"
+                            type="object" invisible="state != 'available'"/>
+                    <button name="action_back_to_available" string="Back to Available"
+                            type="object" invisible="state != 'maintenance'"/>
+                    <button name="action_retire" string="Retire" type="object"
+                            invisible="state != 'available'"
+                            confirm="Retire this equipment? It will no longer be assignable."
+                            groups="equipment_management.group_equipment_manager"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="available,in_use,maintenance,retired"/>
+                           statusbar_visible="available,in_use,maintenance"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_assignments" type="object"
+                        <button name="action_view_assignment_history" type="object"
                                 class="oe_stat_button" icon="fa-history">
-                            <field name="assignment_count" widget="statinfo" string="History"/>
+                            <field name="assignment_count" widget="statinfo" string="Assignments"/>
                         </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                             invisible="active"/>
+                    <widget name="web_ribbon" title="Retired" bg_color="text-bg-secondary"
+                            invisible="state != 'retired' or not active"/>
+                    <field name="active" invisible="1"/>
+
+                    <div class="alert alert-info d-flex align-items-center gap-2" role="alert"
+                         invisible="state != 'in_use'">
+                        <i class="fa fa-user"/>
+                        <span>Currently assigned to</span>
+                        <field name="current_employee_id" nolabel="1" class="oe_inline fw-bold"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="state != 'maintenance'">
+                        <i class="fa fa-wrench me-1"/>This equipment is in maintenance and cannot be assigned.
+                    </div>
+
                     <div class="oe_title">
                         <label for="name"/>
                         <h1><field name="name" placeholder="e.g. Dell Latitude 5440"/></h1>
@@ -50,53 +72,136 @@
                         <group string="Identification">
                             <field name="code"/>
                             <field name="serial_number"/>
-                            <field name="category_id"/>
+                            <field name="category_id" options="{'no_create_edit': True}"/>
                         </group>
-                        <group string="Status">
-                            <field name="current_employee_id"/>
+                        <group string="Purchase">
                             <field name="purchase_date"/>
-                            <field name="active" invisible="1"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Assignment History" name="history">
+                            <field name="assignment_ids" readonly="1">
+                                <list limit="20" decoration-info="is_active" decoration-muted="not is_active">
+                                    <field name="employee_id"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="is_active" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
     </record>
 
-    <record id="view_equipment_equipment_search" model="ir.ui.view">
+    <!-- KANBAN: columns = status; each card is colored by status -->
+    <record id="equipment_view_kanban" model="ir.ui.view">
+        <field name="name">equipment.equipment.kanban</field>
+        <field name="model">equipment.equipment</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" records_draggable="0"
+                    group_create="0" quick_create="0" sample="1">
+                <field name="state"/>
+                <progressbar field="state"
+                             colors='{"available": "success", "in_use": "info", "maintenance": "warning", "retired": "danger"}'/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="d-flex gap-3 ps-3 border-start border-4 #{record.state.raw_value == 'available' ? 'border-success' : record.state.raw_value == 'in_use' ? 'border-info' : record.state.raw_value == 'maintenance' ? 'border-warning' : 'border-danger opacity-50'}">
+
+                            <div class="d-flex align-items-center justify-content-center rounded bg-100 text-muted flex-shrink-0"
+                                 style="width: 56px; height: 56px;">
+                                <i class="fa fa-laptop fa-2x"/>
+                            </div>
+
+                            <div class="flex-grow-1 overflow-hidden">
+                                <field name="name" class="fw-bold fs-5 text-truncate d-block"/>
+                                <div class="text-muted small">
+                                    <field name="code"/>
+                                    <span t-if="record.serial_number.raw_value"> · S/N <field name="serial_number"/></span>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    <span class="badge rounded-pill text-bg-light border">
+                                        <field name="category_id"/>
+                                    </span>
+                                    <field name="state" widget="label_selection"
+                                           options="{'classes': {'available': 'success', 'in_use': 'info', 'maintenance': 'warning', 'retired': 'danger'}}"/>
+                                </div>
+
+                                <div t-if="record.current_employee_id.raw_value" class="mt-2">
+                                    <span class="badge rounded-pill text-bg-info">
+                                        <i class="fa fa-user me-1"/><field name="current_employee_id"/>
+                                    </span>
+                                </div>
+                                <div t-else="" class="text-muted small mt-2">
+                                    <i class="fa fa-circle-o me-1"/>Not assigned
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- SEARCH -->
+    <record id="equipment_view_search" model="ir.ui.view">
         <field name="name">equipment.equipment.search</field>
         <field name="model">equipment.equipment</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name" string="Name, Reference or Serial"
+                <field name="name" string="Equipment"
                        filter_domain="['|', '|', ('name', 'ilike', self), ('code', 'ilike', self), ('serial_number', 'ilike', self)]"/>
                 <field name="category_id"/>
                 <field name="current_employee_id"/>
+                <searchpanel>
+                    <field name="state" string="Status" icon="fa-circle" enable_counters="1"/>
+                    <field name="category_id" string="Category" icon="fa-folder-open"
+                           select="multi" enable_counters="1"/>
+                </searchpanel>
                 <separator/>
-                <filter name="filter_available" string="Available" domain="[('state', '=', 'available')]"/>
-                <filter name="filter_in_use" string="In Use" domain="[('state', '=', 'in_use')]"/>
-                <filter name="filter_maintenance" string="Maintenance" domain="[('state', '=', 'maintenance')]"/>
-                <filter name="filter_retired" string="Retired" domain="[('state', '=', 'retired')]"/>
+                <filter name="available" string="Available" domain="[('state', '=', 'available')]"/>
+                <filter name="in_use" string="In Use" domain="[('state', '=', 'in_use')]"/>
+                <filter name="maintenance" string="Maintenance" domain="[('state', '=', 'maintenance')]"/>
+                <filter name="retired" string="Retired" domain="[('state', '=', 'retired')]"/>
                 <separator/>
-                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
-                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_category" string="Category" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_employee" string="Employee" context="{'group_by': 'current_employee_id'}"/>
-                    <filter name="group_purchase" string="Purchase Year" context="{'group_by': 'purchase_date:year'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <record id="action_equipment_equipment" model="ir.actions.act_window">
-        <field name="name">Equipment</field>
+    <!-- ACTIONS -->
+    <record id="equipment_action" model="ir.actions.act_window">
+        <field name="name">All Equipment</field>
         <field name="res_model">equipment.equipment</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_equipment_equipment_search"/>
-        <field name="context">{'search_default_group_state': 1}</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Register your first equipment</p>
+            <p>Add laptops, phones and accessories, then give them to employees.</p>
         </field>
+    </record>
+    <record id="equipment_action_available" model="ir.actions.act_window">
+        <field name="name">Available Equipment</field>
+        <field name="res_model">equipment.equipment</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_available': 1, 'search_default_group_category': 1}</field>
+    </record>
+    <record id="equipment_action_in_use" model="ir.actions.act_window">
+        <field name="name">Equipment In Use</field>
+        <field name="res_model">equipment.equipment</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_in_use': 1, 'search_default_group_employee': 1}</field>
+    </record>
+    <record id="equipment_action_maintenance" model="ir.actions.act_window">
+        <field name="name">Equipment in Maintenance</field>
+        <field name="res_model">equipment.equipment</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_maintenance': 1}</field>
     </record>
 </odoo>
