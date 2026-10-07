@@ -2,7 +2,7 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_equipment_user,equipment.user,model_equipment_equipment,group_equipment_user,1,0,0,0
 access_equipment_manager,equipment.manager,model_equipment_equipment,group_equipment_manager,1,1,1,1
 access_assignment_user,assignment.user,model_equipment_assignment,group_equipment_user,1,1,1,0
-access_assignment_manager,assignment.manager,model_equipment_assignment,group_equipment_manager,1,1,1,1
+access_assignment_manager,assignment.manager,model_equipment_assignment,group_equipment_manager,1,1,1,0
 access_category_user,category.user,model_equipment_category,group_equipment_user,1,0,0,0
 access_category_manager,category.manager,model_equipment_category,group_equipment_manager,1,1,1,1
 access_hr_employee_equipment,hr.employee.equipment,hr.model_hr_employee,group_equipment_user,1,0,0,0
