@@ -11,6 +11,7 @@ class EquipmentAssignment(models.Model):
         "equipment.equipment",
         string="Equipment",
         required=True,
+        index=True,
         ondelete="restrict",
     )
 
@@ -18,18 +19,21 @@ class EquipmentAssignment(models.Model):
         "hr.employee",
         string="Employee",
         required=True,
+        index=True,
         ondelete="restrict",
     )
 
     date_from = fields.Datetime(
         string="Given On",
         required=True,
+        index=True,
         default=fields.Datetime.now,
     )
 
     date_to = fields.Datetime(
         string="Returned On",
         readonly=True,
+        index=True
     )
 
     is_active = fields.Boolean(
