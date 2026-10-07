@@ -25,13 +25,18 @@
                 </button>
 
                 <button
-                    name="action_view_equipment_history"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-history"
+                name="action_view_equipment_history"
+                type="object"
+                class="oe_stat_button"
+                icon="fa-history"
+                groups="equipment_management.group_equipment_user"
+            >
+                <field
+                    name="history_count"
+                    widget="statinfo"
                     string="History"
-                    groups="equipment_management.group_equipment_user"
                 />
+            </button>
 
                 <button
                     name="action_assign_equipment"

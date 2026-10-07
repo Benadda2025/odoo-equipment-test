@@ -17,6 +17,27 @@ class HrEmployee(models.Model):
         compute="_compute_equipment_count",
     )
 
+    history_count = fields.Integer(
+    string="History Count",
+    compute="_compute_history_count",
+)
+
+    def _compute_history_count(self):
+        """Compute the number of equipment assignments for each employee."""
+        data = self.env["equipment.assignment"]._read_group(
+            [("employee_id", "in", self.ids)],
+            ["employee_id"],
+            ["__count"],
+        )
+
+        counts = {
+            employee.id: count
+            for employee, count in data
+        }
+
+        for employee in self:
+            employee.history_count = counts.get(employee.id, 0)
+
     def _compute_equipment_count(self):
         """Compute the number of equipment currently assigned to each employee."""
         data = self.env["equipment.equipment"]._read_group(
