@@ -95,11 +95,16 @@ class EquipmentEquipment(models.Model):
         ),
     ]
 
-    @api.depends("assignment_ids")
     def _compute_assignment_count(self):
-        for equipment in self:
-            equipment.assignment_count = len(equipment.assignment_ids)
+        data = self.env["equipment.assignment"]._read_group(
+            [("equipment_id", "in", self.ids)],
+            ["equipment_id"],
+            ["__count"],
+        )
+        counts = {equipment.id: count for equipment, count in data}
 
+        for equipment in self:
+            equipment.assignment_count = counts.get(equipment.id, 0)
    
     def action_assign_equipment(self):
         """Open the assignment form for this equipment."""

@@ -39,8 +39,14 @@ class HrEmployee(models.Model):
             employee.history_count = counts.get(employee.id, 0)
 
     def _compute_equipment_count(self):
+        data = self.env["equipment.equipment"]._read_group(
+            [("current_employee_id", "in", self.ids)],
+            ["current_employee_id"],
+            ["__count"],
+        )
+        counts = {emp.id: count for emp, count in data}
         for employee in self:
-             employee.equipment_count = len(employee.equipment_ids)
+            employee.equipment_count = counts.get(employee.id, 0)
 
     def action_view_equipment(self):
         """Open equipment currently assigned to the employee."""
