@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_equipment_category_admin,equipment.category.admin,model_equipment_category,base.group_system,1,1,1,1
+access_equipment_equipment_admin,equipment.equipment.admin,model_equipment_equipment,base.group_system,1,1,1,1
+access_equipment_assignment_admin,equipment.assignment.admin,model_equipment_assignment,base.group_system,1,1,1,1

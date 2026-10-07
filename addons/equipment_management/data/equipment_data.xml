@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="equipment_laptop_001" model="equipment.equipment">
+        <field name="name">Dell Latitude 5440</field>
+        <field name="code">EQ-0001</field>
+        <field name="serial_number">DL5440-A001</field>
+        <field name="category_id" ref="equipment_category_computer"/>
+        <field name="purchase_date">2024-01-15</field>
+    </record>
+    <record id="equipment_laptop_002" model="equipment.equipment">
+        <field name="name">HP EliteBook 840</field>
+        <field name="code">EQ-0002</field>
+        <field name="serial_number">HP840-B002</field>
+        <field name="category_id" ref="equipment_category_computer"/>
+        <field name="purchase_date">2024-03-02</field>
+    </record>
+    <record id="equipment_laptop_003" model="equipment.equipment">
+        <field name="name">MacBook Pro 14"</field>
+        <field name="code">EQ-0003</field>
+        <field name="serial_number">MBP14-C003</field>
+        <field name="category_id" ref="equipment_category_computer"/>
+        <field name="purchase_date">2023-11-20</field>
+    </record>
+    <record id="equipment_phone_001" model="equipment.equipment">
+        <field name="name">iPhone 14</field>
+        <field name="code">EQ-0004</field>
+        <field name="serial_number">IP14-D004</field>
+        <field name="category_id" ref="equipment_category_phone"/>
+        <field name="purchase_date">2023-09-10</field>
+    </record>
+    <record id="equipment_phone_002" model="equipment.equipment">
+        <field name="name">Samsung Galaxy S23</field>
+        <field name="code">EQ-0005</field>
+        <field name="serial_number">SGS23-E005</field>
+        <field name="category_id" ref="equipment_category_phone"/>
+        <field name="purchase_date">2024-02-05</field>
+    </record>
+    <record id="equipment_monitor_001" model="equipment.equipment">
+        <field name="name">Dell UltraSharp 27"</field>
+        <field name="code">EQ-0006</field>
+        <field name="serial_number">DU27-F006</field>
+        <field name="category_id" ref="equipment_category_monitor"/>
+        <field name="purchase_date">2022-06-18</field>
+    </record>
+    <record id="equipment_tool_001" model="equipment.equipment">
+        <field name="name">Network Cable Tester</field>
+        <field name="code">EQ-0007</field>
+        <field name="serial_number">NCT-G007</field>
+        <field name="category_id" ref="equipment_category_tool"/>
+        <field name="purchase_date">2022-08-01</field>
+    </record>
+    <record id="equipment_accessory_001" model="equipment.equipment">
+        <field name="name">Logitech MX Keyboard</field>
+        <field name="code">EQ-0008</field>
+        <field name="serial_number">LMXK-H008</field>
+        <field name="category_id" ref="equipment_category_accessory"/>
+        <field name="purchase_date">2024-04-12</field>
+    </record>
+    <record id="equipment_accessory_002" model="equipment.equipment">
+        <field name="name">Logitech MX Master 3 Mouse</field>
+        <field name="code">EQ-0009</field>
+        <field name="serial_number">LMXM-I009</field>
+        <field name="category_id" ref="equipment_category_accessory"/>
+        <field name="purchase_date">2024-04-12</field>
+    </record>
+    <record id="equipment_laptop_004" model="equipment.equipment">
+        <field name="name">Lenovo ThinkPad T14</field>
+        <field name="code">EQ-0010</field>
+        <field name="serial_number">LT14-J010</field>
+        <field name="category_id" ref="equipment_category_computer"/>
+        <field name="purchase_date">2021-05-30</field>
+        <field name="state">maintenance</field>
+    </record>
+</odoo>

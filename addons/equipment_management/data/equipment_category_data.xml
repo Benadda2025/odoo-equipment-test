@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="equipment_category_computer" model="equipment.category">
+        <field name="name">Computers</field>
+    </record>
+    <record id="equipment_category_phone" model="equipment.category">
+        <field name="name">Phones</field>
+    </record>
+    <record id="equipment_category_tool" model="equipment.category">
+        <field name="name">Tools</field>
+    </record>
+    <record id="equipment_category_accessory" model="equipment.category">
+        <field name="name">Accessories</field>
+    </record>
+    <record id="equipment_category_monitor" model="equipment.category">
+        <field name="name">Monitors</field>
+    </record>
+</odoo>

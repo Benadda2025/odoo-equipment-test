@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_equipment_equipment_list" model="ir.ui.view">
+        <field name="name">equipment.equipment.list</field>
+        <field name="model">equipment.equipment</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="serial_number" optional="show"/>
+                <field name="current_employee_id" optional="show"/>
+                <field name="purchase_date" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'available'"
+                       decoration-info="state == 'in_use'"
+                       decoration-warning="state == 'maintenance'"
+                       decoration-muted="state == 'retired'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equipment_equipment_form" model="ir.ui.view">
+        <field name="name">equipment.equipment.form</field>
+        <field name="model">equipment.equipment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_set_maintenance" type="object" string="Send to Maintenance"
+                            invisible="state != 'available'"/>
+                    <button name="action_set_available" type="object" string="Back to Available"
+                            invisible="state != 'maintenance'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="available,in_use,maintenance,retired"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_assignments" type="object"
+                                class="oe_stat_button" icon="fa-history">
+                            <field name="assignment_count" widget="statinfo" string="History"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Dell Latitude 5440"/></h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="code"/>
+                            <field name="serial_number"/>
+                            <field name="category_id"/>
+                        </group>
+                        <group string="Status">
+                            <field name="current_employee_id"/>
+                            <field name="purchase_date"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_equipment_equipment_search" model="ir.ui.view">
+        <field name="name">equipment.equipment.search</field>
+        <field name="model">equipment.equipment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Name, Reference or Serial"
+                       filter_domain="['|', '|', ('name', 'ilike', self), ('code', 'ilike', self), ('serial_number', 'ilike', self)]"/>
+                <field name="category_id"/>
+                <field name="current_employee_id"/>
+                <separator/>
+                <filter name="filter_available" string="Available" domain="[('state', '=', 'available')]"/>
+                <filter name="filter_in_use" string="In Use" domain="[('state', '=', 'in_use')]"/>
+                <filter name="filter_maintenance" string="Maintenance" domain="[('state', '=', 'maintenance')]"/>
+                <filter name="filter_retired" string="Retired" domain="[('state', '=', 'retired')]"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_category" string="Category" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_employee" string="Employee" context="{'group_by': 'current_employee_id'}"/>
+                    <filter name="group_purchase" string="Purchase Year" context="{'group_by': 'purchase_date:year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_equipment_equipment" model="ir.actions.act_window">
+        <field name="name">Equipment</field>
+        <field name="res_model">equipment.equipment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_equipment_equipment_search"/>
+        <field name="context">{'search_default_group_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register your first equipment</p>
+        </field>
+    </record>
+</odoo>
