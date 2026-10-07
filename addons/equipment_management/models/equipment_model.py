@@ -75,7 +75,6 @@ class EquipmentEquipment(models.Model):
 
     active = fields.Boolean(
         default=True,
-        index=True,
     )
 
     note = fields.Text(

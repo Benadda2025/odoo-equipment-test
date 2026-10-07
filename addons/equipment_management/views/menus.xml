@@ -28,6 +28,13 @@
     <menuitem id="menu_equipment_maintenance" name="Maintenance"
               parent="menu_equipment_parent" action="equipment_action_maintenance" sequence="40"/>
 
+    <!-- Analysis (managers only) -->
+<menuitem id="menu_equipment_analysis" name="Analysis"
+parent="menu_equipment_root" groups="group_equipment_manager" sequence="70"/>
+<menuitem id="menu_analysis_equipment" name="Equipment Status"
+parent="menu_equipment_analysis" action="equipment_action_analysis" sequence="10"/>
+<menuitem id="menu_analysis_assignment" name="Assignment Activity"
+parent="menu_equipment_analysis" action="assignment_action_analysis" sequence="20"/>
     <!-- Managers only -->
     <menuitem id="menu_equipment_config" name="Configuration"
               parent="menu_equipment_root" groups="group_equipment_manager" sequence="90"/>

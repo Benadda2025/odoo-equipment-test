@@ -175,6 +175,62 @@
             </search>
         </field>
     </record>
+    <record id="equipment_view_graph" model="ir.ui.view">
+        <field name="name">equipment.equipment.graph</field>
+        <field name="model">equipment.equipment</field>
+        <field name="arch" type="xml">
+            <graph type="bar" stacked="1">
+                <field name="category_id"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+    <!-- GRAPH -->
+<record id="equipment_view_graph" model="ir.ui.view">
+    <field name="name">equipment.equipment.graph</field>
+    <field name="model">equipment.equipment</field>
+    <field name="arch" type="xml">
+        <graph string="Equipment by Category" type="bar" stacked="1">
+            <field name="category_id"/>
+            <field name="state"/>
+        </graph>
+    </field>
+</record>
+
+<!-- PIVOT -->
+<record id="equipment_view_pivot" model="ir.ui.view">
+    <field name="name">equipment.equipment.pivot</field>
+    <field name="model">equipment.equipment</field>
+    <field name="arch" type="xml">
+        <pivot string="Equipment Analysis">
+            <field name="category_id" type="row"/>
+            <field name="state" type="col"/>
+        </pivot>
+    </field>
+</record>
+<record id="assignment_view_graph" model="ir.ui.view">
+    <field name="name">equipment.assignment.graph</field>
+    <field name="model">equipment.assignment</field>
+    <field name="arch" type="xml">
+        <graph string="Assignments" type="line">
+            <field name="date_from" interval="month"/>
+        </graph>
+    </field>
+</record>
+
+<record id="assignment_action_analysis" model="ir.actions.act_window">
+    <field name="name">Assignment Analysis</field>
+    <field name="res_model">equipment.assignment</field>
+    <field name="view_mode">graph,list</field>
+</record>
+
+<!-- ANALYSIS ACTION -->
+<record id="equipment_action_analysis" model="ir.actions.act_window">
+    <field name="name">Equipment Analysis</field>
+    <field name="res_model">equipment.equipment</field>
+    <field name="view_mode">graph,pivot,list</field>
+    <field name="context">{'search_default_group_category': 1}</field>
+</record>
 
     <!-- ACTIONS -->
     <record id="equipment_action" model="ir.actions.act_window">
