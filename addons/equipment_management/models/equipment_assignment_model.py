@@ -44,6 +44,13 @@ class EquipmentAssignment(models.Model):
 
     note = fields.Text(string="Notes")
 
+
+    def init(self):
+        self.env.cr.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS equipment_assignment_one_open
+            ON equipment_assignment (equipment_id) WHERE date_to IS NULL
+        """)
+
     @api.depends("date_to")
     def _compute_is_active(self):
         for record in self:

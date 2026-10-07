@@ -199,16 +199,10 @@ class EquipmentEquipment(models.Model):
         }
 
     def unlink(self):
-        """Prevent deletion when equipment has assignment history."""
-        if self.filtered("assignment_ids"):
-            raise UserError(
-                _(
-                    "Equipment with assignment history cannot be deleted. "
-                    "Archive it instead."
-                )
-            )
-
+        if self.env["equipment.assignment"].search_count([("equipment_id", "in", self.ids)]):
+            raise UserError(_("Equipment with history cannot be deleted. Archive it instead."))
         return super().unlink()
+
     
     @api.model_create_multi
     def create(self, vals_list):

@@ -35,7 +35,7 @@
                     <button name="action_back_to_available" string="Back to Available"
                             type="object" invisible="state != 'maintenance'"    groups="equipment_management.group_equipment_manager"/>
                     <button name="action_retire" string="Retire" type="object"
-                            invisible="state != 'available'"
+                            invisible="state not in ('available', 'maintenance')"
                             confirm="Retire this equipment? It will no longer be assignable."
                             groups="equipment_management.group_equipment_manager"/>
                     <field name="state" widget="statusbar"
