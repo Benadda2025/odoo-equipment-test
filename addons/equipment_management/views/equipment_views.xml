@@ -175,16 +175,7 @@
             </search>
         </field>
     </record>
-    <record id="equipment_view_graph" model="ir.ui.view">
-        <field name="name">equipment.equipment.graph</field>
-        <field name="model">equipment.equipment</field>
-        <field name="arch" type="xml">
-            <graph type="bar" stacked="1">
-                <field name="category_id"/>
-                <field name="state"/>
-            </graph>
-        </field>
-    </record>
+   
     <!-- GRAPH -->
 <record id="equipment_view_graph" model="ir.ui.view">
     <field name="name">equipment.equipment.graph</field>
