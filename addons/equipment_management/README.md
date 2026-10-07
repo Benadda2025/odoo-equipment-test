@@ -92,3 +92,9 @@ I wrote a generator script (`scripts/gen_data.py`, kept outside the module) that
 
 Run it with `odoo shell`. Then I checked the data with SQL, measured the slow queries with `EXPLAIN (ANALYZE, BUFFERS)`, and timed the main screens in the browser.
 
+```bash
+docker compose exec -T web odoo shell -d equipment_test --no-http \
+  --db_host=mydb \
+  --db_user=odoo \
+  --db_password=myodoo \
+  < scripts/gen_data.py
