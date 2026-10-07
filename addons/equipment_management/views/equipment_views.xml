@@ -31,9 +31,9 @@
                     <button name="action_assign_equipment" string="Give Equipment" type="object"
                             class="btn-primary" invisible="state != 'available'"/>
                     <button name="action_send_to_maintenance" string="Send to Maintenance"
-                            type="object" invisible="state != 'available'"/>
+                            type="object" invisible="state != 'available'"    groups="equipment_management.group_equipment_manager"/>
                     <button name="action_back_to_available" string="Back to Available"
-                            type="object" invisible="state != 'maintenance'"/>
+                            type="object" invisible="state != 'maintenance'"    groups="equipment_management.group_equipment_manager"/>
                     <button name="action_retire" string="Retire" type="object"
                             invisible="state != 'available'"
                             confirm="Retire this equipment? It will no longer be assignable."
@@ -88,6 +88,9 @@
                                     <field name="is_active" column_invisible="1"/>
                                 </list>
                             </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note" placeholder="Internal notes..."/>
                         </page>
                     </notebook>
                 </sheet>

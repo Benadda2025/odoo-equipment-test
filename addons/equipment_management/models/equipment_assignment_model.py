@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 class EquipmentAssignment(models.Model):
     _name = "equipment.assignment"
     _description = "Equipment Assignment"
-    _order = "date_from desc"
+    _order = "date_from desc ,id desc"
 
     equipment_id = fields.Many2one(
         "equipment.equipment",

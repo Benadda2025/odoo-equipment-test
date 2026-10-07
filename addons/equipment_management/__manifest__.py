@@ -12,7 +12,6 @@
         "views/equipment_views.xml",
         "views/equipment_assignment_views.xml",
         "views/hr_employee_views.xml",
-        "views/equipment_sequence_views.xml",
         "data/equipment_sequence.xml",
         "views/menus.xml",
     ],
