@@ -67,23 +67,19 @@ class EquipmentAssignment(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            equipment = self.env["equipment.equipment"].browse(
-                vals.get("equipment_id")
-            )
-
+            if vals.get("date_to"):
+                continue  
+            equipment = self.env["equipment.equipment"].browse(vals.get("equipment_id"))
             if equipment.state != "available":
-                raise UserError(
-                    _("This equipment is not available.")
-                )
+                raise UserError(_("%s is not available.", equipment.display_name))
 
         records = super().create(vals_list)
 
-        for record in records:
+        for record in records.filtered(lambda r: not r.date_to):
             record.equipment_id.sudo().write({
                 "state": "in_use",
                 "current_employee_id": record.employee_id.id,
             })
-
         return records
 
     def action_return(self):
