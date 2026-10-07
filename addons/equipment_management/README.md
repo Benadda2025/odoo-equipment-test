@@ -22,16 +22,11 @@ This module answers each problem inside Odoo:
 | No overview | Kanban, filters, group-by, graph and pivot |
 | Slow with big data | Indexes, SQL aggregation, no history scan for current state |
 
+
 ## 2. Data model
 
-- **`equipment.category`**: category (Laptop, Phone, ...). Name is unique.
-- **`equipment.equipment`**: the item. Fields: name, code, serial number, category, purchase date, status (`available`, `in_use`, `maintenance`, `retired`), current employee, archive flag.
-- **`equipment.assignment`**: one row per period of use. Fields: equipment, employee, given on, returned on, active (computed and stored), note.
-- **`hr.employee`** (extended): equipment count, "Equipment" and "History" buttons, "Give Equipment" button, an Equipment tab, and "With / Without Equipment" filters.
+![Equipment Management Data Model](static/src/img/data_model.png)
 
-### Main design choice
-
-The current status and current holder are **stored on the equipment** itself, and the assignment table is only the history. So "what is in use right now?" is a simple filter on one table. It never needs to scan the growing history table.
 
 ## 3. Features
 
@@ -81,7 +76,7 @@ Notes:
 - Single company.
 - Dates are date and time, to keep the exact moment of give and return.
 
-8. Performance and scalability
+## 8. Performance and scalability
 The module is designed to work well even with many equipment items and a large history.
 - We store the current status directly on the equipment.
 - We add indexes to make searches faster.
