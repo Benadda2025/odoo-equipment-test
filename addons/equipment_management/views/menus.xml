@@ -40,4 +40,11 @@ parent="menu_equipment_analysis" action="assignment_action_analysis" sequence="2
               parent="menu_equipment_root" groups="group_equipment_manager" sequence="90"/>
     <menuitem id="menu_category" name="Categories"
               parent="menu_equipment_config" action="action_equipment_category" sequence="10"/>
+    <menuitem
+              id="equipment_menu_sequence"
+              name="Sequences"
+              parent="menu_equipment_config"
+              action="action_equipment_sequence"
+              sequence="20"
+          />
 </odoo>

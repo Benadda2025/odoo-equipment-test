@@ -17,15 +17,16 @@ class EquipmentEquipment(models.Model):
 
     code = fields.Char(
         string="Code",
-        required=True,
         copy=False,
         index=True,
+                    readonly=True,
+
+
     )
 
     category_id = fields.Many2one(
         "equipment.category",
         string="Category",
-        required=True,
         index=True,
         ondelete="restrict",
     )
@@ -203,3 +204,13 @@ class EquipmentEquipment(models.Model):
             )
 
         return super().unlink()
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get("code"):
+                vals["code"] = self.env["ir.sequence"].next_by_code(
+                    "equipment.equipment"
+                )
+
+        return super().create(vals_list)
